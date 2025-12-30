@@ -1,95 +1,92 @@
 from backtesting import Strategy
 import numpy as np
-import pandas as pd
-
 
 class MultiTFStrategy(Strategy):
+    # === Strategy parameters ===
     rsi_period = 14
-    sma_period = 50
-    confirm_interval = 4  # number of bars on entry timeframe per confirmation timeframe (15m -> 1h)
-
-    # Entry/exit thresholds (tweakable)
-    rsi_long_entry = 40
-    rsi_short_entry = 60
-    rsi_long_exit = 70
-    rsi_short_exit = 30
-    sma_break_pct = 0.005  # 0.5%
+    sma_fast = 20      # short-term SMA
+    sma_slow = 60      # higher timeframe trend
+    rsi_momentum = 2   # minimum RSI rise for momentum
+    atr_period = 14
+    atr_sl = 1.0       # ATR multiplier for SL
+    atr_tp = 2.0       # ATR multiplier for TP
 
     def init(self):
         close = self.data.Close
+        high = self.data.High
+        low = self.data.Low
 
-        def rsi_calc(arr, period):
-            s = pd.Series(np.asarray(arr, dtype=float))
-            delta = s.diff()
-            gain = delta.clip(lower=0)
-            loss = -delta.clip(upper=0)
-            avg_gain = gain.ewm(alpha=1/period, min_periods=period).mean()
-            avg_loss = loss.ewm(alpha=1/period, min_periods=period).mean()
-            rs = avg_gain / avg_loss
-            rsi = 100 - (100 / (1 + rs))
-            return rsi.values
+        # Fast SMA for entries
+        self.sma_fast_line = self.I(
+            lambda x: np.convolve(x, np.ones(self.sma_fast)/self.sma_fast, mode='same'), 
+            close
+        )
 
-        def sma_calc(arr, period):
-            s = pd.Series(np.asarray(arr, dtype=float))
-            return s.rolling(period).mean().values
+        # Slow SMA for trend filter
+        self.sma_slow_line = self.I(
+            lambda x: np.convolve(x, np.ones(self.sma_slow)/self.sma_slow, mode='same'),
+            close
+        )
 
-        # Compute indicators on the strategy timeframe using array-safe functions
-        self.rsi = self.I(lambda s: rsi_calc(s, self.rsi_period), close)
-        self.sma50 = self.I(lambda s: sma_calc(s, self.sma_period), close)
+        # RSI
+        self.rsi_line = self.I(self._rsi, close, self.rsi_period)
 
-        # bar counter to simulate confirmation timeframe (every `confirm_interval` bars)
-        self._bar_count = 0
+        # ATR
+        self.atr_line = self.I(self._atr, high, low, close, self.atr_period)
 
     def next(self):
-        # increment bar counter
-        self._bar_count += 1
+        if len(self.data.Close) < self.sma_slow:
+            return  # wait until enough data
 
-        price = float(self.data.Close[-1])
-        rsi = float(self.rsi[-1]) if not np.isnan(self.rsi[-1]) else None
-        sma = float(self.sma50[-1]) if not np.isnan(self.sma50[-1]) else None
+        close = self.data.Close[-1]
+        rsi_now = self.rsi_line[-1]
+        rsi_prev = self.rsi_line[-2]
+        sma_fast = self.sma_fast_line[-1]
+        sma_slow = self.sma_slow_line[-1]
+        atr = self.atr_line[-1]
 
-        # If indicators are not ready, skip
-        if rsi is None or sma is None:
-            return
+        # Trend direction
+        uptrend = sma_fast > sma_slow
+        downtrend = sma_fast < sma_slow
 
-        # Determine if this bar is a confirmation bar (simulates higher timeframe)
-        is_confirmation_bar = (self._bar_count % self.confirm_interval) == 0
+        # Momentum check
+        rsi_momentum_up = rsi_now - rsi_prev >= self.rsi_momentum
+        rsi_momentum_down = rsi_prev - rsi_now >= self.rsi_momentum
 
-        # ENTRY logic (only on confirmation bars)
-        if not self.position:
-            if is_confirmation_bar:
-                # Long entry: RSI below long threshold (oversold) and price above SMA
-                if rsi < self.rsi_long_entry and price > sma:
-                    self.buy()
-                    return
+        # --- Long Entry ---
+        if not self.position and uptrend and rsi_momentum_up:
+            self.buy(
+                sl=close - self.atr_sl * atr,
+                tp=close + self.atr_tp * atr
+            )
 
-                # Short entry: RSI above short threshold (overbought) and price below SMA
-                if rsi > self.rsi_short_entry and price < sma:
-                    self.sell()
-                    return
+        # --- Short Entry ---
+        if not self.position and downtrend and rsi_momentum_down:
+            self.sell(
+                sl=close + self.atr_sl * atr,
+                tp=close - self.atr_tp * atr
+            )
 
-            # not confirmation bar or no entry conditions met -> do nothing
-            return
+        # --- Exit on strong reversal candle ---
+        if self.position.is_long and close < sma_fast:
+            self.position.close()
+        if self.position.is_short and close > sma_fast:
+            self.position.close()
 
-        # EXIT logic while in position
-        if self.position.is_long:
-            # Exit if RSI indicates overbought OR price drops below SMA by threshold
-            if rsi > self.rsi_long_exit:
-                self.position.close()
-                return
+    @staticmethod
+    def _rsi(series, period):
+        delta = np.diff(series)
+        up = np.where(delta > 0, delta, 0)
+        down = np.where(delta < 0, -delta, 0)
+        roll_up = np.convolve(up, np.ones(period)/period, mode='same')
+        roll_down = np.convolve(down, np.ones(period)/period, mode='same')
+        rs = roll_up / (roll_down + 1e-9)
+        rsi = 100 - (100 / (1 + rs))
+        return np.concatenate([[50], rsi])
 
-            if price < (sma * (1 - self.sma_break_pct)):
-                self.position.close()
-                return
-
-        elif self.position.is_short:
-            # Exit if RSI indicates oversold OR price rises above SMA by threshold
-            if rsi < self.rsi_short_exit:
-                self.position.close()
-                return
-
-            if price > (sma * (1 + self.sma_break_pct)):
-                self.position.close()
-                return
-
-        # No other action; let position run
+    @staticmethod
+    def _atr(high, low, close, period):
+        tr = np.maximum(high[1:] - low[1:], 
+                        np.maximum(np.abs(high[1:] - close[:-1]), np.abs(low[1:] - close[:-1])))
+        atr = np.convolve(tr, np.ones(period)/period, mode='same')
+        return np.concatenate([[tr[0]], atr])
