@@ -1,6 +1,4 @@
 def print_stats(results):
-    
-
     total_trades = results["# Trades"]
     win_rate = results["Win Rate [%]"]
     equity = results["Equity Final [$]"]
@@ -11,6 +9,9 @@ def print_stats(results):
     print(f"Win Rate     : {win_rate}")
     print(f"Final Equity : ${equity:.2f}")
     print(f"Return       : {ret:.2f}%")
-
-
+    
+    if total_trades > 0:
+        print(f"Max DD       : {results['Max. Drawdown [%]']}%")
+        print(f"Sharpe Ratio : {results['Sharpe Ratio']}")
+        
     print("=" * 60)

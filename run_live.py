@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Live trading script for multi-timeframe strategy on Binance Testnet.
-WARNING: This will execute real orders on Binance Testnet.
-"""
-
 from src.trading.exchange import BinanceExchange
 from src.trading.executor import TradeExecutor
 from src.strategy.base import BaseStrategy
@@ -16,7 +11,6 @@ import time
 import pandas as pd
 from datetime import datetime
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -29,8 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class LiveTradingSession:
-    """Manages a live trading session with position tracking and trade summary."""
-
     def __init__(self, exchange, executor, strategy):
         self.exchange = exchange
         self.executor = executor
@@ -42,7 +34,6 @@ class LiveTradingSession:
         self.entry_quantity = None
 
     def fetch_market_data(self, limit=100):
-        """Fetch recent market data from Binance."""
         try:
             klines = self.exchange.client.get_klines(
                 symbol=SYMBOL,
@@ -58,7 +49,6 @@ class LiveTradingSession:
             return None
 
     def process_signals(self, df):
-        """Process entry and exit signals from strategy."""
         if df is None or len(df) < 50:
             logger.warning("Insufficient data for strategy calculation")
             return
@@ -68,7 +58,7 @@ class LiveTradingSession:
             logger.warning("Cannot fetch current price")
             return
 
-        # Check for exit signal first if we have a position
+        # check exit first if we have a position
         if self.position:
             exit_signal = self.strategy.generate_exit_signal(df)
 
@@ -78,7 +68,7 @@ class LiveTradingSession:
                 self.execute_exit(current_price)
                 return
 
-        # Check for entry signal if we don't have a position
+        # check entry if flat
         if not self.position:
             entry_signal = self.strategy.generate_entry_signal(df)
 
@@ -90,7 +80,6 @@ class LiveTradingSession:
                 self.execute_entry("SELL", current_price)
 
     def execute_entry(self, side, price):
-        """Execute entry order and track position."""
         try:
             order = self.executor.execute(side)
 
@@ -98,13 +87,10 @@ class LiveTradingSession:
                 self.position = "LONG" if side == "BUY" else "SHORT"
                 self.entry_price = price
                 self.entry_time = datetime.now()
-
-                # Extract quantity from order response
                 self.entry_quantity = float(order.get('executedQty', 0))
 
                 logger.info(f"✓ Entered {self.position} position: {self.entry_quantity} @ ${price:,.2f}")
 
-                # Log to CSV
                 log_trade([
                     self.entry_time.isoformat(),
                     side,
@@ -120,7 +106,6 @@ class LiveTradingSession:
             logger.error(f"Error executing entry: {e}")
 
     def execute_exit(self, price):
-        """Execute exit order and record trade."""
         try:
             side = "SELL" if self.position == "LONG" else "BUY"
             order = self.executor.execute(side, self.entry_quantity)
@@ -129,13 +114,13 @@ class LiveTradingSession:
                 exit_time = datetime.now()
                 exit_quantity = float(order.get('executedQty', 0))
 
-                # Calculate PnL
+                # calc pnl
                 if self.position == "LONG":
                     pnl = (price - self.entry_price) * self.entry_quantity
-                else:  # SHORT
+                else:
                     pnl = (self.entry_price - price) * self.entry_quantity
 
-                duration = (exit_time - self.entry_time).total_seconds() / 60  # minutes
+                duration = (exit_time - self.entry_time).total_seconds() / 60
 
                 trade_record = {
                     'position': self.position,
@@ -151,7 +136,6 @@ class LiveTradingSession:
 
                 logger.info(f"✓ Exited {self.position} position: {exit_quantity} @ ${price:,.2f} | PnL: ${pnl:,.2f}")
 
-                # Log to CSV
                 log_trade([
                     exit_time.isoformat(),
                     side,
@@ -161,7 +145,7 @@ class LiveTradingSession:
                     order.get('status', 'FILLED')
                 ], "data/live_trades.csv")
 
-                # Reset position
+                # reset position
                 self.position = None
                 self.entry_price = None
                 self.entry_time = None
@@ -173,7 +157,6 @@ class LiveTradingSession:
             logger.error(f"Error executing exit: {e}")
 
     def print_summary(self):
-        """Print trading session summary."""
         print("\n" + "="*70)
         print("LIVE TRADING SESSION SUMMARY")
         print("="*70)
@@ -215,7 +198,7 @@ if __name__ == "__main__":
     logger.info("="*60)
 
     try:
-        # Initialize exchange and executor
+        # setup exchange
         try:
             exchange = BinanceExchange()
             price = exchange.get_current_price()
@@ -249,40 +232,34 @@ if __name__ == "__main__":
         print("Press Ctrl+C to stop trading and view summary")
         print("="*60 + "\n")
 
-        # Main trading loop
+        # main loop
         iteration = 0
         try:
             while True:
                 iteration += 1
                 logger.info(f"--- Iteration {iteration} ---")
 
-                # Fetch market data
                 df = session.fetch_market_data(limit=100)
 
                 if df is not None:
-                    # Process signals and execute trades
                     session.process_signals(df)
 
-                    # Display current status
                     current_price = exchange.get_current_price()
                     logger.info(f"Current Price: ${current_price:,.2f} | Position: {session.position or 'NONE'}")
 
-                # Wait before next iteration (e.g., check every minute)
                 logger.info("Waiting 60 seconds before next check...\n")
                 time.sleep(3)
 
         except KeyboardInterrupt:
             logger.info("\n\nReceived stop signal. Closing session...")
 
-            # If still in position, close it
+            # close any open position
             if session.position:
                 logger.info(f"Closing open {session.position} position...")
                 current_price = exchange.get_current_price()
                 session.execute_exit(current_price)
 
-            # Print summary
             session.print_summary()
-
             logger.info("Live trading session ended.")
 
     except Exception as e:

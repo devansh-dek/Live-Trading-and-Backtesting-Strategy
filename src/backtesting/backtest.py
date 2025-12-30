@@ -10,11 +10,10 @@ DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 
-def _prepare_data(df: pd.DataFrame) -> pd.DataFrame:
+def _prepare_data(df):
     df = df.copy()
 
-
-    # Normalize column names
+    # Map column names to standard format
     rename = {}
     for c in df.columns:
         cl = c.lower().strip()
@@ -33,29 +32,28 @@ def _prepare_data(df: pd.DataFrame) -> pd.DataFrame:
 
     df.rename(columns=rename, inplace=True)
 
-
+    # Add volume if missing
     if "Volume" not in df.columns:
         df["Volume"] = 1000
-       
 
+    # Handle date index
     if "Date" in df.columns:
         df["Date"] = pd.to_datetime(df["Date"])
         df.set_index("Date", inplace=True)
     else:
+        # fallback if no date column
         df.index = pd.date_range("2024-01-01", periods=len(df), freq="15min")
-      
 
+    # Verify we have everything
     required = ["Open", "High", "Low", "Close", "Volume"]
     for col in required:
         if col not in df.columns:
             raise ValueError(f"Missing required column: {col}")
 
-    df = df[required]
-    return df
+    return df[required]
 
 
-def run_backtest(data: pd.DataFrame):
-
+def run_backtest(data):
     df = _prepare_data(data)
 
     bt = Backtest(
@@ -70,6 +68,7 @@ def run_backtest(data: pd.DataFrame):
 
     results = bt.run()
 
+    # Save trades if any
     trades = getattr(results, "_trades", None)
     out = os.path.join(DATA_DIR, "backtest_trades.csv")
 
@@ -78,8 +77,7 @@ def run_backtest(data: pd.DataFrame):
         print(f"Saved {len(trades)} trades → {out}")
     else:
         print("No trades generated")
-        trades = pd.DataFrame()
-        trades.to_csv(out, index=False)
-
+        # save empty file anyway
+        pd.DataFrame().to_csv(out, index=False)
 
     return results

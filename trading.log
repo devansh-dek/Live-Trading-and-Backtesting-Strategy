@@ -1,0 +1,113 @@
+2025-12-30 21:51:08,248 - __main__ - INFO - ============================================================
+2025-12-30 21:51:08,248 - __main__ - INFO - Starting Live Trading System
+2025-12-30 21:51:08,248 - __main__ - INFO - ============================================================
+2025-12-30 21:51:08,933 - src.trading.exchange - INFO - Initialized BinanceExchange for BTCUSDT on Testnet
+2025-12-30 21:51:09,122 - src.trading.exchange - ERROR - Error fetching balance: API Secret required for private endpoints
+2025-12-30 21:51:09,122 - __main__ - ERROR - Binance Testnet connection failed: Binance Testnet unavailable or API keys invalid
+2025-12-30 21:51:09,122 - __main__ - ERROR - Please configure API keys in .env file
+2025-12-30 21:53:49,043 - __main__ - INFO - ============================================================
+2025-12-30 21:53:49,043 - __main__ - INFO - Starting Live Trading System
+2025-12-30 21:53:49,043 - __main__ - INFO - ============================================================
+2025-12-30 21:53:49,342 - src.trading.exchange - INFO - Initialized BinanceExchange for BTCUSDT on Testnet
+2025-12-30 21:53:49,492 - src.trading.exchange - ERROR - Error fetching balance: API Secret required for private endpoints
+2025-12-30 21:53:49,492 - __main__ - ERROR - Binance Testnet connection failed: Binance Testnet unavailable or API keys invalid
+2025-12-30 21:53:49,492 - __main__ - ERROR - Please configure API keys in .env file
+2025-12-30 21:54:58,152 - __main__ - INFO - ============================================================
+2025-12-30 21:54:58,152 - __main__ - INFO - Starting Live Trading System
+2025-12-30 21:54:58,152 - __main__ - INFO - ============================================================
+2025-12-30 21:54:58,677 - src.trading.exchange - INFO - Initialized BinanceExchange for BTCUSDT on Testnet
+2025-12-30 21:54:59,671 - __main__ - INFO -   Symbol: BTCUSDT
+2025-12-30 21:54:59,671 - __main__ - INFO -   Current Price: $89,297.96
+2025-12-30 21:54:59,671 - __main__ - INFO -   USDT Balance: $9,820.53
+2025-12-30 21:54:59,672 - __main__ - INFO - --- Iteration 1 ---
+2025-12-30 21:55:00,664 - __main__ - INFO - Current Price: $89,297.96 | Position: NONE
+2025-12-30 21:55:00,665 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:03,666 - __main__ - INFO - --- Iteration 2 ---
+2025-12-30 21:55:04,397 - __main__ - INFO - Current Price: $89,297.95 | Position: NONE
+2025-12-30 21:55:04,397 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:07,397 - __main__ - INFO - --- Iteration 3 ---
+2025-12-30 21:55:08,393 - __main__ - INFO - Current Price: $89,286.20 | Position: NONE
+2025-12-30 21:55:08,394 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:11,395 - __main__ - INFO - --- Iteration 4 ---
+2025-12-30 21:55:12,118 - __main__ - INFO - Current Price: $89,286.05 | Position: NONE
+2025-12-30 21:55:12,119 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:15,120 - __main__ - INFO - --- Iteration 5 ---
+2025-12-30 21:55:15,852 - __main__ - INFO - Current Price: $89,286.05 | Position: NONE
+2025-12-30 21:55:15,852 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:18,853 - __main__ - INFO - --- Iteration 6 ---
+2025-12-30 21:55:19,842 - __main__ - INFO - Current Price: $89,270.37 | Position: NONE
+2025-12-30 21:55:19,842 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:22,843 - __main__ - INFO - --- Iteration 7 ---
+2025-12-30 21:55:24,113 - __main__ - INFO - Current Price: $89,254.32 | Position: NONE
+2025-12-30 21:55:24,113 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:27,114 - __main__ - INFO - --- Iteration 8 ---
+2025-12-30 21:55:27,841 - __main__ - INFO - Current Price: $89,254.32 | Position: NONE
+2025-12-30 21:55:27,842 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:30,842 - __main__ - INFO - --- Iteration 9 ---
+2025-12-30 21:55:31,845 - __main__ - INFO - Current Price: $89,254.32 | Position: NONE
+2025-12-30 21:55:31,845 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:34,846 - __main__ - INFO - --- Iteration 10 ---
+2025-12-30 21:55:35,822 - __main__ - INFO - Current Price: $89,254.32 | Position: NONE
+2025-12-30 21:55:35,823 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:38,824 - __main__ - INFO - --- Iteration 11 ---
+2025-12-30 21:55:39,818 - __main__ - INFO - Current Price: $89,285.12 | Position: NONE
+2025-12-30 21:55:39,818 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:42,819 - __main__ - INFO - --- Iteration 12 ---
+2025-12-30 21:55:43,545 - __main__ - INFO - Current Price: $89,285.12 | Position: NONE
+2025-12-30 21:55:43,545 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:46,546 - __main__ - INFO - --- Iteration 13 ---
+2025-12-30 21:55:47,545 - __main__ - INFO - Current Price: $89,285.12 | Position: NONE
+2025-12-30 21:55:47,545 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:50,547 - __main__ - INFO - --- Iteration 14 ---
+2025-12-30 21:55:51,026 - __main__ - INFO - Current Price: $89,285.11 | Position: NONE
+2025-12-30 21:55:51,026 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:54,027 - __main__ - INFO - --- Iteration 15 ---
+2025-12-30 21:55:55,023 - __main__ - INFO - Current Price: $89,244.66 | Position: NONE
+2025-12-30 21:55:55,023 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:55:58,024 - __main__ - INFO - --- Iteration 16 ---
+2025-12-30 21:55:59,041 - __main__ - INFO - Current Price: $89,244.66 | Position: NONE
+2025-12-30 21:55:59,041 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:02,042 - __main__ - INFO - --- Iteration 17 ---
+2025-12-30 21:56:02,497 - __main__ - INFO - Current Price: $89,244.66 | Position: NONE
+2025-12-30 21:56:02,497 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:05,499 - __main__ - INFO - --- Iteration 18 ---
+2025-12-30 21:56:06,494 - __main__ - INFO - Current Price: $89,244.66 | Position: NONE
+2025-12-30 21:56:06,495 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:09,496 - __main__ - INFO - --- Iteration 19 ---
+2025-12-30 21:56:10,218 - __main__ - INFO - Current Price: $89,244.65 | Position: NONE
+2025-12-30 21:56:10,219 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:13,220 - __main__ - INFO - --- Iteration 20 ---
+2025-12-30 21:56:14,279 - __main__ - INFO - Current Price: $89,237.90 | Position: NONE
+2025-12-30 21:56:14,279 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:17,280 - __main__ - INFO - --- Iteration 21 ---
+2025-12-30 21:56:18,006 - __main__ - INFO - Current Price: $89,237.90 | Position: NONE
+2025-12-30 21:56:18,006 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:21,007 - __main__ - INFO - --- Iteration 22 ---
+2025-12-30 21:56:21,998 - __main__ - INFO - Current Price: $89,237.90 | Position: NONE
+2025-12-30 21:56:21,998 - __main__ - INFO - Waiting 60 seconds before next check...
+
+2025-12-30 21:56:23,368 - __main__ - INFO - 
+
+Received stop signal. Closing session...
+2025-12-30 21:56:23,368 - __main__ - INFO - Live trading session ended.

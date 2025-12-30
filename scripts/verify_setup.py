@@ -1,36 +1,30 @@
 #!/usr/bin/env python3
-"""
-Setup verification script - checks if all dependencies and files are ready.
-"""
 import sys
 import os
 from pathlib import Path
 
 def check_venv():
-    """Check if running in virtual environment."""
-    in_venv = hasattr(sys, 'real_prefix') or (
+    # Check if we're in a venv
+    return hasattr(sys, 'real_prefix') or (
         hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
     )
-    return in_venv
 
 def check_dependencies():
-    """Check if required packages are installed."""
     required = [
         'pandas', 'numpy', 'backtesting',
         'binance', 'ta', 'dotenv'
     ]
     missing = []
 
-    for package in required:
+    for pkg in required:
         try:
-            __import__(package)
+            __import__(pkg)
         except ImportError:
-            missing.append(package)
+            missing.append(pkg)
 
     return missing
 
 def check_files():
-    """Check if required files exist."""
     required_files = [
         'config/config.py',
         'src/strategy/multi_tf.py',
@@ -44,22 +38,18 @@ def check_files():
     ]
 
     missing = []
-    for file in required_files:
-        if not Path(file).exists():
-            missing.append(file)
+    for f in required_files:
+        if not Path(f).exists():
+            missing.append(f)
 
     return missing
-
-def check_env():
-    """Check if .env file exists."""
-    return Path('.env').exists()
 
 def main():
     print("="*60)
     print("TRADING SYSTEM SETUP VERIFICATION")
     print("="*60)
 
-    # Check virtual environment
+    # Virtual environment check
     print("\n1. Virtual Environment:")
     if check_venv():
         print("   ✓ Running in virtual environment")
@@ -67,7 +57,7 @@ def main():
         print("   ✗ NOT in virtual environment")
         print("   → Run: python3 -m venv venv && source venv/bin/activate")
 
-    # Check dependencies
+    # Dependencies
     print("\n2. Dependencies:")
     missing_deps = check_dependencies()
     if not missing_deps:
@@ -76,26 +66,26 @@ def main():
         print(f"   ✗ Missing packages: {', '.join(missing_deps)}")
         print("   → Run: pip install -r requirements.txt")
 
-    # Check files
+    # Files
     print("\n3. Required Files:")
     missing_files = check_files()
     if not missing_files:
         print("   ✓ All required files present")
     else:
         print(f"   ✗ Missing files:")
-        for file in missing_files:
-            print(f"     - {file}")
+        for f in missing_files:
+            print(f"     - {f}")
 
-    # Check .env
+    # Env config
     print("\n4. Environment Configuration:")
-    if check_env():
+    if Path('.env').exists():
         print("   ✓ .env file exists")
     else:
         print("   ✗ .env file not found")
         print("   → For live trading: cp .env.example .env")
         print("   → Then edit .env with your Binance Testnet API keys")
 
-    # Final status
+    # Summary
     print("\n" + "="*60)
     if not missing_deps and not missing_files and check_venv():
         print("✓ SETUP COMPLETE - Ready to run backtest!")

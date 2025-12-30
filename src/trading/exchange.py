@@ -8,20 +8,16 @@ import os
 logger = logging.getLogger(__name__)
 
 class BinanceExchange:
-    """Wrapper for Binance Testnet API operations."""
-
     def __init__(self):
-        # Initialize client; if keys are empty this may still create a client but calls will fail
         try:
             self.client = Client(API_KEY, API_SECRET, testnet=True)
         except Exception:
-            # Leave client unset; caller should handle errors
             self.client = None
+        
         self.symbol = SYMBOL
         logger.info(f"Initialized BinanceExchange for {self.symbol} on Testnet")
 
     def get_account_balance(self, asset="USDT"):
-        """Get available balance for a specific asset."""
         try:
             account = self.client.get_account()
             for balance in account['balances']:
@@ -34,14 +30,9 @@ class BinanceExchange:
 
     def place_order(self, side, quantity):
         """
-        Place a market order on Binance Testnet.
-
-        Args:
-            side: "BUY" or "SELL"
-            quantity: Amount to trade (in base asset, e.g., BTC)
-
-        Returns:
-            Order response dict or None on failure
+        Place market order on testnet
+        side: "BUY" or "SELL"
+        quantity: amount in base asset
         """
         try:
             order = self.client.create_order(
@@ -58,7 +49,6 @@ class BinanceExchange:
             return None
 
     def get_current_price(self):
-        """Get current market price for the symbol."""
         try:
             if not self.client:
                 raise RuntimeError("Binance client not initialized")
@@ -69,7 +59,7 @@ class BinanceExchange:
             return None
 
     def is_authenticated(self):
-        """Return True if API key/secret appear valid (account endpoint accessible)."""
+        # check if we can access account endpoint
         try:
             if not self.client:
                 return False
@@ -77,4 +67,3 @@ class BinanceExchange:
             return True
         except Exception:
             return False
-
