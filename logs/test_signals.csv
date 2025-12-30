@@ -1,0 +1,2 @@
+Timestamp,Bar,Price,Signal,RSI,SMA,Reason,PositionStatus
+2025-12-29T19:29:41.342372,52,42200.0,BUY,38.5,42100.0,RSI<40 & price>SMA,NO_POSITION

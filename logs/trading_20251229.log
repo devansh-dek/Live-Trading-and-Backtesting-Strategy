@@ -1,0 +1,3 @@
+2025-12-29 19:29:17 - test_module - INFO - <module>:7 - ✓ Logging system initialized successfully
+2025-12-29 19:29:17 - strategy - INFO - <module>:10 - ✓ Strategy logger working
+2025-12-29 19:29:17 - executor - INFO - <module>:11 - ✓ Executor logger working

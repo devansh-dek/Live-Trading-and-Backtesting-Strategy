@@ -1,0 +1,2 @@
+Timestamp,Side,EntryPrice,Quantity,RSI,SMA,Reason,RiskPct,PositionSize
+2025-12-29T19:29:41.342614,BUY,42200.0,0.002365,38.5,42100.0,Oversold entry,1.0,100.0
