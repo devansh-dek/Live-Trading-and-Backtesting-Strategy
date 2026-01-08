@@ -255,8 +255,6 @@ The analyzer displays:
 
 ## Author
 
-**Siddhant, Numatix**
-
 **Implementation by:** Devansh
 
 ## Acknowledgments
