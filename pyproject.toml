@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quant-trading-system"
+version = "1.0.0"
+description = "Multi-timeframe quantitative trading system with walk-forward backtesting and paper execution"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "ta>=0.11",
+    "backtesting>=0.3.3",
+    "python-binance>=1.0.19",
+    "python-dotenv>=1.0",
+    "matplotlib>=3.7",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.1",
+]
+
+[project.scripts]
+quant-backtest = "run_backtest:main"
+quant-walkforward = "run_walkforward:main"
+quant-fetch-data = "scripts.fetch_data:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "config*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

@@ -1,6 +1,11 @@
-pandas
-numpy
-ta
-backtesting
-python-binance
-python-dotenv
+pandas>=2.0
+numpy>=1.24
+ta>=0.11
+backtesting>=0.3.3
+python-binance>=1.0.19
+python-dotenv>=1.0
+matplotlib>=3.7
+requests>=2.31
+pytest>=7.4
+pytest-cov>=4.1
+ruff>=0.1
