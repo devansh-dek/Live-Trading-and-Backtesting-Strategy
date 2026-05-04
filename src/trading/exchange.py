@@ -1,9 +1,7 @@
 from binance.client import Client
-from binance.enums import *
+from binance.enums import ORDER_TYPE_MARKET
 from config.config import API_KEY, API_SECRET, SYMBOL
 import logging
-import pandas as pd
-import os
 
 logger = logging.getLogger(__name__)
 

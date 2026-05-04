@@ -1,103 +1,56 @@
 #!/usr/bin/env python3
+"""Verify project setup."""
+
 import sys
-import os
 from pathlib import Path
 
-def check_venv():
-    # Check if we're in a venv
-    return hasattr(sys, 'real_prefix') or (
-        hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
-    )
-
-def check_dependencies():
-    required = [
-        'pandas', 'numpy', 'backtesting',
-        'binance', 'ta', 'dotenv'
-    ]
-    missing = []
-
-    for pkg in required:
-        try:
-            __import__(pkg)
-        except ImportError:
-            missing.append(pkg)
-
-    return missing
-
-def check_files():
-    required_files = [
-        'config/config.py',
-        'src/strategy/multi_tf.py',
-        'src/backtesting/backtest.py',
-        'src/backtesting/analyzer.py',
-        'src/trading/exchange.py',
-        'src/trading/executor.py',
-        'data/historical_data.csv',
-        'run_backtest.py',
-        'run_live.py'
-    ]
-
-    missing = []
-    for f in required_files:
-        if not Path(f).exists():
-            missing.append(f)
-
-    return missing
 
 def main():
-    print("="*60)
-    print("TRADING SYSTEM SETUP VERIFICATION")
-    print("="*60)
+  print("=" * 60)
+  print("QUANT TRADING SYSTEM — SETUP VERIFICATION")
+  print("=" * 60)
 
-    # Virtual environment check
-    print("\n1. Virtual Environment:")
-    if check_venv():
-        print("   ✓ Running in virtual environment")
-    else:
-        print("   ✗ NOT in virtual environment")
-        print("   → Run: python3 -m venv venv && source venv/bin/activate")
+  in_venv = hasattr(sys, "real_prefix") or (
+    hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
+  )
+  print(f"\n1. Virtual env: {'OK' if in_venv else 'WARN (recommended)'}") 
 
-    # Dependencies
-    print("\n2. Dependencies:")
-    missing_deps = check_dependencies()
-    if not missing_deps:
-        print("   ✓ All dependencies installed")
-    else:
-        print(f"   ✗ Missing packages: {', '.join(missing_deps)}")
-        print("   → Run: pip install -r requirements.txt")
+  deps = ["pandas", "numpy", "backtesting", "binance", "matplotlib", "requests", "pytest"]
+  missing = [p for p in deps if not _try_import(p)]
+  print(f"2. Dependencies: {'OK' if not missing else 'MISSING: ' + ', '.join(missing)}")
 
-    # Files
-    print("\n3. Required Files:")
-    missing_files = check_files()
-    if not missing_files:
-        print("   ✓ All required files present")
-    else:
-        print(f"   ✗ Missing files:")
-        for f in missing_files:
-            print(f"     - {f}")
+  required = [
+    "config/config.py",
+    "src/quant/signals.py",
+    "src/backtesting/backtest.py",
+    "src/data/pipeline.py",
+    "run_backtest.py",
+    "run_walkforward.py",
+  ]
+  missing_files = [f for f in required if not Path(f).exists()]
+  print(f"3. Project files: {'OK' if not missing_files else 'MISSING: ' + ', '.join(missing_files)}")
 
-    # Env config
-    print("\n4. Environment Configuration:")
-    if Path('.env').exists():
-        print("   ✓ .env file exists")
-    else:
-        print("   ✗ .env file not found")
-        print("   → For live trading: cp .env.example .env")
-        print("   → Then edit .env with your Binance Testnet API keys")
+  has_env = Path(".env").exists()
+  print(f"4. Live trading .env: {'OK' if has_env else 'Optional (copy .env.example)'}")
 
-    # Summary
-    print("\n" + "="*60)
-    if not missing_deps and not missing_files and check_venv():
-        print("✓ SETUP COMPLETE - Ready to run backtest!")
-        print("\nNext steps:")
-        print("  python run_backtest.py")
-        print("\nFor live trading setup:")
-        print("  1. Get testnet keys from https://testnet.binance.vision/")
-        print("  2. Copy .env.example to .env and add your keys")
-        print("  3. Run: python run_live.py")
-    else:
-        print("✗ SETUP INCOMPLETE - Please address issues above")
-    print("="*60)
+  data_ok = Path("data/historical_data.csv").exists()
+  print(f"5. Historical data: {'OK' if data_ok else 'Run: make fetch-data'}")
+
+  print("\n" + "=" * 60)
+  if not missing and not missing_files:
+    print("Ready. Run: make backtest | make walkforward | make test")
+  else:
+    print("Fix issues above, then: pip install -r requirements.txt")
+  print("=" * 60)
+
+
+def _try_import(pkg):
+  try:
+    __import__(pkg)
+    return True
+  except ImportError:
+    return False
+
 
 if __name__ == "__main__":
-    main()
+  main()
