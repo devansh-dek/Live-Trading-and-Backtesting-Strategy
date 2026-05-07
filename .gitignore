@@ -9,3 +9,5 @@ dist/
 build/
 reports/*.html
 !reports/.gitkeep
+data/trading_journal.db
+data/*.db
