@@ -1,139 +1,142 @@
 # Quantitative Multi-Timeframe Trading System
 
-A production-oriented research and execution platform for systematic crypto trading. Implements a **multi-timeframe momentum strategy** on BTCUSDT with walk-forward out-of-sample validation, HTML performance reports, SQLite trade journaling, and Binance Testnet paper execution.
+A Python research and execution platform for systematic crypto trading on **BTCUSDT**. Combines multi-timeframe signal generation, walk-forward out-of-sample validation, performance analytics, and Binance Testnet paper trading in a single modular codebase.
 
 **Author:** Devansh Khandelwal
 
 ---
 
-## What Makes This Defensible in Interviews
+## Highlights
 
-| Capability | Implementation |
-|------------|----------------|
-| **Multi-timeframe design** | 15m entry signals filtered by 1h SMA trend (true resampling, not bar-count hacks) |
-| **Shared signal engine** | Same `MultiTimeframeSignalEngine` drives backtest and live — no logic drift |
-| **Walk-forward OOS** | Rolling 6-month train / 1-month test windows across 18 months of data |
-| **Risk layer** | ATR stops, fixed-fractional sizing, daily loss kill switch |
-| **Benchmark** | Every backtest compares against buy-and-hold |
-| **Audit trail** | SQLite journal logs every signal and fill |
-| **Engineering** | pytest suite, GitHub Actions CI, typed config dataclasses |
+- **Multi-timeframe strategy** — 15m entries confirmed by a true 1h SMA trend filter (proper OHLCV resampling)
+- **Unified signal engine** — identical logic in backtest and live; no code-path drift
+- **Walk-forward validation** — rolling 6-month train / 1-month test windows over 18 months of data
+- **Full analytics** — Sharpe, Sortino, Calmar, profit factor, drawdown, buy-and-hold benchmark
+- **Production patterns** — typed config, SQLite audit log, pytest + GitHub Actions CI, HTML reports
 
 ---
 
-## Strategy Logic
+## Strategy Overview
 
-**1h trend filter (resampled from 15m):**
-- UP: SMA(20) > SMA(60)
-- DOWN: SMA(20) < SMA(60)
+| Layer | Timeframe | Rule |
+|-------|-----------|------|
+| Trend filter | 1h (resampled) | Long bias when SMA(20) > SMA(60); short bias when SMA(20) < SMA(60) |
+| Entry trigger | 15m | Long if 1h UP + RSI(14) rises ≥ 2 pts; short if 1h DOWN + RSI falls ≥ 2 pts |
+| Exit | 15m | Close long below SMA(20); close short above SMA(20) |
+| Risk | — | ATR(14) SL at 1.5×, TP at 2.5×; 1% equity risk per trade; 3% daily loss limit |
 
-**15m entry (only when flat):**
-- Long: 1h UP + RSI(14) rising ≥ 2 points
-- Short: 1h DOWN + RSI(14) falling ≥ 2 points
-
-**15m exit:**
-- Long: close < SMA(20)
-- Short: close > SMA(20)
-
-**Risk:** ATR(14) stop at 1.5×, take-profit at 2.5×, 1% equity risk per trade.
+Full methodology: [docs/METHODOLOGY.md](docs/METHODOLOGY.md)
 
 ---
 
-## Results (18 months BTCUSDT 15m, Dec 2024 – Jun 2026)
+## Backtest Summary
+
+**Dataset:** 52,512 bars · BTCUSDT 15m · Dec 2024 – Jun 2026  
+**Capital:** $100,000 · Commission: 0.1%
 
 | Metric | Strategy | Buy & Hold |
 |--------|----------|------------|
-| Total Return | -41.7% | -36.9% |
+| Total Return | −41.7% | −36.9% |
 | Max Drawdown | 41.9% | — |
-| Sharpe | -2.53 | — |
+| Sharpe Ratio | −2.53 | — |
+| Sortino Ratio | −0.55 | — |
 | Trades | 275 | — |
 | Win Rate | 25.5% | — |
 | Profit Factor | 0.55 | — |
 
-> **Honest note:** Current parameters show negative out-of-sample alpha in this period. The platform is built to *detect* this rigorously — walk-forward confirms degradation. This is a research system, not a claimed edge. In interviews, lead with methodology, not returns.
+Walk-forward OOS (12 windows): strategy underperforms benchmark consistently — see [docs/RESULTS.md](docs/RESULTS.md).
 
-Walk-forward: 12 OOS windows, aggregate 1,408 trades, consistent underperformance vs benchmark → strategy needs parameter refinement or regime filter.
+> The system is designed to evaluate edge rigorously. Negative alpha in this period is a valid research outcome, not a failure of the infrastructure.
 
 ---
 
-## Quick Start
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- pip / venv
+
+### Install
 
 ```bash
-python3 -m venv venv && source venv/bin/activate
+git clone <repo-url>
+cd Live-Trading-and-Backtesting-Strategy
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
+```
 
-# Verify setup
+### Run
+
+```bash
+# Verify environment
 python scripts/verify_setup.py
 
-# Run backtest + HTML report
+# Full backtest + HTML report
 python run_backtest.py --report
 
-# Walk-forward OOS analysis
+# Walk-forward out-of-sample analysis
 python run_walkforward.py
 
-# Run tests
+# Unit tests
 pytest tests/ -v
 ```
 
-### Live Paper Trading (Binance Testnet)
+### Paper Trading (Binance Testnet)
 
 ```bash
 cp .env.example .env
-# Add testnet keys from https://testnet.binance.vision/
+# Add keys from https://testnet.binance.vision/
 
-python scripts/test_connection.py   # verify keys
-python scripts/run_live_once.py     # single iteration smoke test
-python run_live.py                  # continuous loop (Ctrl+C to stop)
+python scripts/test_connection.py
+python scripts/run_live_once.py    # smoke test (1 iteration)
+python run_live.py                 # continuous loop
 ```
 
 ---
 
-## Project Structure
+## Repository Layout
 
 ```
-├── config/config.py          # StrategyConfig, BacktestConfig dataclasses
+├── config/config.py         Typed strategy, backtest, and walk-forward settings
 ├── src/
-│   ├── quant/                # Indicators, signals, risk (framework-agnostic)
-│   ├── data/pipeline.py      # Binance data fetch + normalization
-│   ├── backtesting/          # Engine, metrics, walk-forward, HTML reports
-│   ├── strategy/multi_tf.py  # backtesting.py Strategy adapter
-│   ├── trading/              # Exchange, executor, live runner
-│   └── storage/journal.py    # SQLite signal + trade log
-├── scripts/
-│   ├── fetch_data.py         # Download 18mo of 15m klines
-│   ├── test_connection.py    # Testnet auth check
-│   └── run_live_once.py      # Single-iteration smoke test
-├── tests/                    # pytest unit tests
-├── reports/                  # Generated HTML backtest reports
-└── data/
-    ├── historical_data.csv   # 52k bars BTCUSDT 15m
-    └── trading_journal.db    # Live signal/trade log (generated)
+│   ├── quant/               Indicators, signal engine, risk manager
+│   ├── data/                Binance data fetch and normalization
+│   ├── backtesting/         Engine, metrics, walk-forward, HTML reports
+│   ├── strategy/            backtesting.py strategy adapter
+│   ├── trading/             Exchange wrapper, executor, live runner
+│   └── storage/             SQLite signal and trade journal
+├── scripts/                 Data fetch, connection test, utilities
+├── tests/                   pytest unit tests
+├── docs/                    Methodology and results write-ups
+├── reports/                 Generated HTML backtest reports
+└── data/                    Historical OHLCV and runtime artifacts
 ```
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for design details.
+Design details: [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
-## Resume Bullet Examples
+## Makefile
 
-- Built a multi-timeframe quant research platform in Python with walk-forward OOS validation on 52k 15m bars, Sharpe/drawdown/profit-factor analytics, and buy-and-hold benchmarking.
-- Designed a framework-agnostic signal engine shared between backtesting and live execution, with ATR-based risk sizing and SQLite audit logging.
-- Integrated Binance Testnet paper trading with structured signal journaling; validated end-to-end pipeline via pytest + GitHub Actions CI.
+| Command | Description |
+|---------|-------------|
+| `make install` | Install package with dev dependencies |
+| `make backtest` | Run full-period backtest |
+| `make walkforward` | Run walk-forward OOS analysis |
+| `make test` | pytest with coverage |
+| `make fetch-data` | Download latest 18 months of 15m klines |
+| `make live` | Start Testnet paper trading |
 
 ---
 
-## Makefile Commands
+## Tech Stack
 
-```bash
-make install      # pip install -e ".[dev]"
-make backtest     # full-period backtest
-make walkforward  # OOS walk-forward
-make test         # pytest + coverage
-make fetch-data   # refresh historical data
-make live         # start paper trading
-```
+Python · pandas · numpy · backtesting.py · python-binance · matplotlib · pytest · GitHub Actions
 
 ---
 
 ## License
 
-Educational / research use. Not financial advice.
+Educational and research use only. Not financial advice.

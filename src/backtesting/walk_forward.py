@@ -31,16 +31,16 @@ def generate_windows(
   start = df.index[0]
   end = df.index[-1]
   windows = []
-  cursor = start
+  window_start = start
 
   while True:
-    train_end = cursor + pd.DateOffset(months=train_months)
+    train_end = window_start + pd.DateOffset(months=train_months)
     test_start = train_end
     test_end = test_start + pd.DateOffset(months=test_months)
     if test_end > end:
       break
-    windows.append((cursor, train_end, test_start, test_end))
-    cursor = cursor + pd.DateOffset(months=test_months)
+    windows.append((window_start, train_end, test_start, test_end))
+    window_start = window_start + pd.DateOffset(months=test_months)
 
   return windows
 
