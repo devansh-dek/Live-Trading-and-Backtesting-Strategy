@@ -88,4 +88,8 @@ python run_walkforward.py
 ```
 
 Trade log: `data/backtest_trades.csv`  
-HTML report: `reports/backtest_report_*.html`
+HTML report: [docs/assets/backtest_report.html](assets/backtest_report.html)
+
+### Sample Equity Curve
+
+![Equity curve and drawdown](assets/equity_curve.png)
