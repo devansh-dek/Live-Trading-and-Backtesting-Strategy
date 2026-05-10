@@ -60,7 +60,7 @@ Walk-forward OOS (12 windows): strategy underperforms benchmark consistently —
 ### Install
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/devansh-dek/Live-Trading-and-Backtesting-Strategy.git
 cd Live-Trading-and-Backtesting-Strategy
 python3 -m venv venv
 source venv/bin/activate

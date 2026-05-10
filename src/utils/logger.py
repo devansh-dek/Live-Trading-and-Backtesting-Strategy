@@ -1,6 +1,5 @@
 import csv
 import os
-from datetime import datetime
 
 
 def log_trade(row, file):

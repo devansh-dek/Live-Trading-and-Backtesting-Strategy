@@ -1,6 +1,5 @@
 import logging
 from config.config import RISK_PER_TRADE
-from src.utils.logger import log_trade_detailed
 
 
 class TradeExecutor:
